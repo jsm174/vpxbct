@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>VPX Batocera Capture Tool</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.5;
+      margin: 0;
+      padding: 0;
+      color: #333;
+      background-color: #f8f9fa;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .header {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 20px;
+    }
+    
+    @media (min-width: 768px) {
+      .header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+    
+    .title {
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0 0 10px 0;
+      color: #1a1a1a;
+    }
+    
+    .status-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .badge-outline {
+      background-color: transparent;
+      border: 1px solid #d1d5db;
+      color: #4b5563;
+    }
+    
+    .badge-primary {
+      background-color: #3b82f6;
+      color: white;
+    }
+    
+    .badge-secondary {
+      background-color: #6b7280;
+      color: white;
+    }
+
+    .badge-success {
+      background-color: #10b981;
+      color: white;
+    }
+    
+    .card {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    
+    .card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .card-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .card-content {
+      padding: 20px;
+    }
+    
+    .button-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s, border-color 0.2s;
+      border: 1px solid transparent;
+    }
+    
+    .button-primary {
+      background-color: #3b82f6;
+      color: white;
+    }
+    
+    .button-primary:hover {
+      background-color: #2563eb;
+    }
+    
+    .button-outline {
+      background-color: transparent;
+      border-color: #d1d5db;
+      color: #4b5563;
+    }
+    
+    .button-outline:hover {
+      background-color: #f3f4f6;
+    }
+    
+    .button-destructive {
+      background-color: #ef4444;
+      color: white;
+    }
+    
+    .button-destructive:hover {
+      background-color: #dc2626;
+    }
+    
+    .tabs {
+      margin-bottom: 16px;
+    }
+    
+    .tab-list {
+      display: flex;
+      border-bottom: 1px solid #e5e7eb;
+      margin-bottom: 16px;
+    }
+    
+    .tab {
+      padding: 8px 16px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      font-weight: 500;
+    }
+    
+    .tab.active {
+      border-bottom-color: #3b82f6;
+      color: #3b82f6;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .media-preview {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    
+    .media-preview img,
+    .media-preview video {
+      max-height: 400px;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      margin-bottom: 16px;
+    }
+    
+    .media-preview-empty {
+      padding: 40px 20px;
+      text-align: center;
+      color: #6b7280;
+    }
+    
+    .table-container {
+      overflow-x: auto;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    th {
+      font-weight: 600;
+      color: #4b5563;
+      background-color: #f9fafb;
+      text-align: left;
+    }
+
+    th:nth-child(2) {
+      text-align: center;
+    }
+    
+    tr:last-child td {
+      border-bottom: none;
+    }
+    
+    tr:hover td {
+      background-color: #f9fafb;
+    }
+    
+    .sortable {
+      cursor: pointer;
+      user-select: none;
+    }
+    
+    .sortable:hover {
+      background-color: #f3f4f6;
+    }
+    
+    .sort-icon {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+    
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    
+    .action-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-right: 8px;
+    }
+    
+    .action-label {
+      font-size: 12px;
+      color: #6b7280;
+    }
+    
+    .icon-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      background-color: transparent;
+      border: 1px solid #e5e7eb;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .icon-button:hover {
+      background-color: #f3f4f6;
+    }
+    
+    .icon-button svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+    
+    #editor {
+      display: none;
+    }
+    
+    .editor-textarea {
+      width: 100%;
+      height: 40vh;
+      font-family: monospace;
+      font-size: 14px;
+      padding: 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      resize: vertical;
+    }
+    
+    .error-message {
+      background-color: #fee2e2;
+      color: #b91c1c;
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+    
+    .running-table {
+      background-color: #f0f9ff !important;
+    }
+    
+    .flex {
+      display: flex;
+    }
+    
+    .justify-between {
+      justify-content: space-between;
+    }
+    
+    .items-center {
+      align-items: center;
+    }
+    
+    .gap-2 {
+      gap: 8px;
+    }
+    
+    .mt-4 {
+      margin-top: 16px;
+    }
+    
+    .mb-2 {
+      margin-bottom: 8px;
+    }
+
+    .preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .button-small {
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+
+    .live-preview-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    @media (min-width: 768px) {
+      .live-preview-container {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .preview-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background-color: #f9fafb;
+    }
+
+    .preview-card h4 {
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #4b5563;
+    }
+
+    .preview-image {
+      max-width: 100%;
+      max-height: 300px;
+      object-fit: contain;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      background-color: #fff;
+    }
+
+    .preview-placeholder {
+      width: 100%;
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f3f4f6;
+      border: 1px dashed #d1d5db;
+      border-radius: 4px;
+      color: #6b7280;
+      font-size: 14px;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .preview-loading {
+      width: 100%;
+      min-height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #6b7280;
+      grid-column: 1 / -1;
+    }
+
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: white;
+      min-width: 200px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      z-index: 1;
+      border-radius: 4px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .dropdown-content.show {
+      display: block;
+    }
+
+    .dropdown-header {
+      padding: 8px 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #4b5563;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .dropdown-item:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown-item:hover {
+      background-color: #f9fafb;
+    }
+
+    .dropdown-item-label {
+      font-size: 14px;
+      color: #4b5563;
+    }
+
+    .dropdown-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .table-actions {
+      display: flex;
+      gap: 4px;
+      flex-wrap: nowrap;
+      justify-content: center;
+    }
+
+    .action-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      border-radius: 4px;
+      background-color: transparent;
+      border: 1px solid #e5e7eb;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      color: #4b5563;
+    }
+
+    .action-button:hover {
+      background-color: #f3f4f6;
+    }
+
+    .action-button.primary {
+      background-color: #3b82f6;
+      color: white;
+      border-color: #3b82f6;
+    }
+
+    .action-button.primary:hover {
+      background-color: #2563eb;
+    }
+
+    .action-button.secondary {
+      background-color: #6b7280;
+      color: white;
+      border-color: #6b7280;
+    }
+
+    .action-button.secondary:hover {
+      background-color: #4b5563;
+    }
+
+    @media (max-width: 640px) {
+      .table-actions {
+        justify-content: center;
+        gap: 2px;
+      }
+      
+      .action-button {
+        padding: 4px;
+      }
+    }
+
+    tr[data-id] {
+      cursor: pointer;
+    }
+
+    tr[data-id]:hover td {
+      background-color: #f3f4f6;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #4b5563;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    }
+
+    .form-textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      font-size: 14px;
+      min-height: 120px;
+      resize: vertical;
+      transition: border-color 0.2s;
+    }
+
+    .form-textarea:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    }
+
+    .section-header {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 24px 0 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e5e7eb;
+      color: #4b5563;
+    }
+
+    .description-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    #suggest-description {
+      padding: 4px 8px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .search-container {
+      position: relative;
+      width: 250px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 8px 12px 8px 36px;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      font-size: 14px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+    }
+
+    @media (max-width: 640px) {
+      .card-header .flex {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      
+      .search-container {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .card-header .flex {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+      
+      .card-header .button {
+        padding: 6px 12px;
+        font-size: 13px;
+      }
+      
+      #editor-title {
+        font-size: 16px;
+        margin-bottom: 8px;
+        width: 100%;
+      }
+      
+      .card-header .flex .gap-2 {
+        margin-left: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="main" class="container">
+    <div class="header">
+      <h1 class="title">VPX Batocera Capture Tool</h1>
+      <div class="status-badges">
+        <div id="main-status" class="badge badge-outline">Status: Idle</div>
+        <div id="es-status" class="badge badge-secondary">ES Status: Loading...</div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-content">
+        <div class="tabs">
+          <div class="tab-list">
+            <div class="tab active" data-tab="controls">Controls</div>
+            <div class="tab" data-tab="preview">Live Preview</div>
+          </div>
+          
+          <div id="controls-tab" class="tab-content active">
+            <div class="button-group">
+              <button id="reload-games" class="button button-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                  <path d="M21 3v5h-5"></path>
+                  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                  <path d="M8 16H3v5"></path>
+                </svg>
+                Reload Games
+              </button>
+              <button id="capture-backglass" class="button button-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="3" width="20" height="14" rx="2"></rect>
+                  <line x1="8" x2="16" y1="21" y2="21"></line>
+                  <line x1="12" x2="12" y1="17" y2="21"></line>
+                </svg>
+                Capture Backglass
+              </button>
+              <button id="capture-image" class="button button-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+                Capture Image
+              </button>
+              <button id="capture-video" class="button button-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m22 8-6 4 6 4V8Z"></path>
+                  <rect x="2" y="6" width="14" height="12" rx="2" ry="2"></rect>
+                </svg>
+                Capture Video
+              </button>
+              <button id="stop-vpx" class="button button-destructive">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                </svg>
+                Stop VPX
+              </button>
+            </div>
+          </div>
+          
+          <div id="preview-tab" class="tab-content">
+            <div class="preview-header">
+              <h3>Live Preview</h3>
+              <button id="refresh-preview" class="button button-outline button-small">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                  <path d="M21 3v5h-5"></path>
+                  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                  <path d="M8 16H3v5"></path>
+                </svg>
+                Refresh
+              </button>
+            </div>
+            
+            <div id="live-preview-container" class="live-preview-container">
+              <div class="preview-loading">
+                Loading previews...
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <div class="flex justify-between items-center">
+          <h2 class="card-title">Tables (<span id="table-count">0</span>)</h2>
+          <div class="search-container">
+            <input type="text" id="search-input" class="search-input" placeholder="Search tables..." aria-label="Search tables">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="card-content">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th class="sortable" id="sort-name">
+                  Name
+                  <span class="sort-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m7 15 5 5 5-5"></path>
+                      <path d="m7 9 5-5 5 5"></path>
+                    </svg>
+                  </span>
+                </th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="table-list">
+              <tr>
+                <td colspan="2" style="text-align: center; padding: 40px 20px;">
+                  Loading tables...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div id="editor" class="container">
+    <div class="card">
+      <div class="card-header">
+        <div class="flex justify-between items-center">
+          <h2 class="card-title" id="editor-title">Editing Table</h2>
+          <div class="flex gap-2">
+            <button id="save-button" class="button button-primary">Save</button>
+            <button id="cancel-button" class="button button-outline">Cancel</button>
+          </div>
+        </div>
+      </div>
+      <div class="card-content">
+        <div id="editor-error" class="error-message hidden"></div>
+        
+        <div class="form-group">
+          <label for="editor-name" class="form-label">Name</label>
+          <input type="text" id="editor-name" class="form-input" placeholder="Table name">
+        </div>
+        
+        <div class="form-group">
+          <div class="description-header">
+            <label for="editor-description" class="form-label">Description</label>
+            <button id="suggest-description" class="button button-outline button-small">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.5 3H5.5C4.57174 3 3.6815 3.36875 3.02513 4.02513C2.36875 4.6815 2 5.57174 2 6.5C2 7.42826 2.36875 8.3185 3.02513 8.97487C3.6815 9.63125 4.57174 10 5.5 10H9.5"></path>
+                <path d="M14.5 21H18.5C19.4283 21 20.3185 20.6313 20.9749 19.9749C21.6313 19.3185 22 18.4283 22 17.5C22 16.5717 21.6313 15.6815 20.9749 15.0251C20.3185 14.3687 19.4283 14 18.5 14H14.5"></path>
+                <path d="M3 6.5L22 17.5"></path>
+              </svg>
+              AI Generate
+            </button>
+          </div>
+          <textarea id="editor-description" class="form-textarea" placeholder="Table description"></textarea>
+        </div>
+        
+        <h3 class="section-header">JSON Data</h3>
+        <textarea id="editor-content" class="editor-textarea"></textarea>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    let tables = [];
+    let currentTable = null;
+    let sortField = 'name';
+    let sortDirection = 'asc';
+    let statusTimeoutId;
+    let mediaPreviewType = null;
+    let currentTableData = null;
+    let searchTerm = '';
+    
+    const mainContainer = document.getElementById('main');
+    const editorContainer = document.getElementById('editor');
+    const mainStatusEl = document.getElementById('main-status');
+    const esStatusEl = document.getElementById('es-status');
+    const tableListEl = document.getElementById('table-list');
+    const tableCountEl = document.getElementById('table-count');
+    const livePreviewContainer = document.getElementById('live-preview-container');
+    const editorTitleEl = document.getElementById('editor-title');
+    const editorContentEl = document.getElementById('editor-content');
+    const editorErrorEl = document.getElementById('editor-error');
+    const editorNameEl = document.getElementById('editor-name');
+    const editorDescriptionEl = document.getElementById('editor-description');
+    
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabId = tab.getAttribute('data-tab');
+        
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        tabContents.forEach(content => {
+          content.classList.remove('active');
+          if (content.id === `${tabId}-tab`) {
+            content.classList.add('active');
+            
+            if (tabId === 'preview') {
+              loadLivePreviews();
+            }
+          }
+        });
+      });
+    });
+
+    function setStatus(status = 'Idle') {
+      clearTimeout(statusTimeoutId);
+      mainStatusEl.textContent = `Status: ${status}`;
+      mainStatusEl.className = status === 'Idle' ? 'badge badge-outline' : 'badge badge-primary';
+      
+      if (status !== 'Idle') {
+        statusTimeoutId = setTimeout(() => {
+          mainStatusEl.textContent = 'Status: Idle';
+          mainStatusEl.className = 'badge badge-outline';
+        }, 5000);
+      }
+    }
+    
+    async function fetchTables() {
+      setStatus('Loading tables...');
+      try {
+        const response = await fetch('es/systems/vpinball/games');
+        if (!response.ok) throw new Error('Failed to fetch tables');
+        
+        tables = await response.json();
+        tableCountEl.textContent = tables.length;
+        sortTables();
+        setStatus('Idle');
+      } catch (error) {
+        console.error('Error fetching tables:', error);
+        setStatus('Error loading tables');
+      }
+    }
+    
+    async function fetchRunning() {
+      if (!tables.length) return;
+      
+      try {
+        const response = await fetch('/es/runningGame');
+        const data = await response.json();
+        
+        if (data.msg) {
+          currentTable = null;
+          esStatusEl.textContent = 'ES Status: Idle';
+          esStatusEl.className = 'badge badge-outline';
+        } else if (data.id) {
+          const game = tables.find(game => game.id === data.id);
+          if (game) {
+            currentTable = game;
+            esStatusEl.textContent = `ES Status: ${game.name} is running`;
+            esStatusEl.className = 'badge badge-success';
+          } else {
+            esStatusEl.textContent = 'ES Status: Error';
+            currentTable = null;
+          }
+        }
+        
+        updateTableHighlighting();
+      } catch (error) {
+        console.error('Error checking running game:', error);
+      }
+    }
+    
+    function updateTableHighlighting() {
+      const rows = tableListEl.querySelectorAll('tr');
+      rows.forEach(row => {
+        row.classList.remove('running-table');
+        const tableId = row.getAttribute('data-id');
+        if (tableId && currentTable && tableId === currentTable.id) {
+          row.classList.add('running-table');
+        }
+      });
+    }
+    
+    async function reloadGames() {
+      setStatus('Reloading games...');
+      try {
+        await fetch('es/reloadgames');
+        setTimeout(fetchTables, 3000);
+      } catch (error) {
+        console.error('Error reloading games:', error);
+        setStatus('Error reloading games');
+        fetchTables();
+      }
+    }
+    
+    async function capture(type) {
+      if (!currentTable) {
+        alert('No table running');
+        return;
+      }
+      
+      setStatus(`Capturing ${type}...`);
+      try {
+        const response = await fetch(`capture?type=${type}`);
+        if (!response.ok) throw new Error(`Failed to capture ${type}`);
+        
+        const blob = await response.blob();
+        await uploadBlob(`es/systems/vpinball/games/${currentTable.id}/media/${type}`, blob);
+      } catch (error) {
+        console.error(`Error capturing ${type}:`, error);
+        setStatus('Error capturing media');
+      }
+    }
+    
+    async function uploadBlob(url, blob) {
+      setStatus('Uploading...');
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          body: blob,
+          headers: {
+            'Content-Type': blob.type,
+          },
+        });
+        
+        if (!response.ok) throw new Error('Upload failed');
+        
+        setStatus('Upload successful');
+      } catch (error) {
+        console.error('Error uploading media:', error);
+        setStatus('Error uploading media');
+      }
+    }
+    
+    async function stopVpx() {
+      if (!currentTable) {
+        alert('No table running');
+        return;
+      }
+      
+      setStatus('Stopping VPX...');
+      try {
+        await fetch('es/emukill');
+        setStatus('VPX stopped');
+      } catch (error) {
+        console.error('Error stopping VPX:', error);
+        setStatus('Error stopping VPX');
+      }
+    }
+    
+    async function loadLivePreviews() {
+      const container = document.getElementById('live-preview-container');
+      
+      container.innerHTML = `<div class="preview-loading">Loading previews...</div>`;
+      setStatus('Loading previews...');
+      
+      try {
+        const [imageResponse, backglassResponse] = await Promise.all([
+          fetch(`capture?type=image`),
+          fetch(`capture?type=boxart`)
+        ]);
+        
+        if (!imageResponse.ok) throw new Error(`Failed to load image: ${imageResponse.status}`);
+        if (!backglassResponse.ok) throw new Error(`Failed to load backglass: ${backglassResponse.status}`);
+        
+        const imageBlob = await imageResponse.blob();
+        const backglassBlob = await backglassResponse.blob();
+        
+        const imageUrl = URL.createObjectURL(imageBlob);
+        const backglassUrl = URL.createObjectURL(backglassBlob);
+        
+        container.innerHTML = `
+          <div class="preview-card">
+            <h4>Backglass</h4>
+            <img src="${backglassUrl}" alt="Backglass preview" class="preview-image">
+          </div>
+          <div class="preview-card">
+            <h4>Playfield</h4>
+            <img src="${imageUrl}" alt="Playfield preview" class="preview-image">
+          </div>
+        `;
+        
+        setStatus('Previews loaded');
+      } catch (error) {
+        console.error('Error loading previews:', error);
+        container.innerHTML = `
+          <div class="preview-loading">
+            Failed to load previews: ${error.message}<br>
+            Please try again by clicking the refresh button.
+          </div>
+        `;
+        setStatus('Error loading previews');
+      }
+    }
+    
+    async function startVpx(id) {
+      if (currentTable) {
+        alert('A table is already running');
+        return;
+      }
+      
+      const game = tables.find(game => game.id === id);
+      if (game) {
+        setStatus('Launching...');
+        try {
+          await fetch('es/launch', {
+            method: 'POST',
+            body: game.path
+          });
+        } catch (error) {
+          console.error('Error launching game:', error);
+          setStatus('Error launching game');
+        }
+      }
+    }
+    
+    async function downloadMedia(type, id) {
+      try {
+        const response = await fetch(`es/systems/vpinball/games/${id}/media/${type}`);
+        if (!response.ok) throw new Error(`Failed to download ${type}`);
+        
+        const blob = await response.blob();
+        const blobType = blob.type;
+        
+        let extension = '';
+        switch (blobType) {
+          case 'image/jpeg':
+            extension = '.jpg';
+            break;
+          case 'image/png':
+            extension = '.png';
+            break;
+          case 'video/mp4':
+            extension = '.mp4';
+            break;
+          default:
+            extension = type === 'video' ? '.mp4' : type === 'image' || type === 'boxart' ? '.png' : '';
+        }
+        
+        const downloadName = `${id}-${type}${extension}`;
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = downloadName;
+        document.body.appendChild(a);
+        a.click();
+        
+        setTimeout(() => {
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+        }, 100);
+      } catch (error) {
+        console.error(`Error downloading ${type}:`, error);
+      }
+    }
+    
+    function uploadMedia(type, id) {
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      
+      fileInput.addEventListener('change', async () => {
+        if (!fileInput.files || fileInput.files.length === 0) return;
+        
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        
+        reader.onload = async () => {
+          if (!reader.result) return;
+          
+          const data = new Uint8Array(reader.result);
+          const blob = new Blob([data], { type: file.type });
+          
+          await uploadBlob(`es/systems/vpinball/games/${id}/media/${type}`, blob);
+        };
+        
+        reader.readAsArrayBuffer(file);
+      });
+      
+      fileInput.click();
+    }
+    
+    // Add a function to clear the search when switching to editor mode
+    function clearSearch() {
+      document.getElementById('search-input').value = '';
+      searchTerm = '';
+    }
+
+    // Update the editTable function to clear search before switching to editor
+    function editTable(id) {
+      clearSearch();
+      const game = tables.find(game => game.id === id);
+      if (!game) return;
+      
+      currentTableData = JSON.parse(JSON.stringify(game));
+      
+      editorTitleEl.textContent = `Editing: ${game.name}`;
+      editorContentEl.value = JSON.stringify(currentTableData, null, 2);
+      
+      editorNameEl.value = currentTableData.name || '';
+      editorDescriptionEl.value = currentTableData.desc || '';
+      
+      editorErrorEl.classList.add('hidden');
+      
+      document.getElementById('save-button').onclick = () => saveTable(id);
+      
+      mainContainer.style.display = 'none';
+      editorContainer.style.display = 'block';
+    }
+    
+    editorNameEl.addEventListener('input', function() {
+      if (!currentTableData) return;
+      
+      try {
+        currentTableData.name = this.value;
+        editorContentEl.value = JSON.stringify(currentTableData, null, 2);
+      } catch (error) {
+        console.error('Error updating name in JSON:', error);
+      }
+    });
+    
+    editorDescriptionEl.addEventListener('input', function() {
+      if (!currentTableData) return;
+      
+      try {
+        currentTableData.desc = this.value;
+        editorContentEl.value = JSON.stringify(currentTableData, null, 2);
+      } catch (error) {
+        console.error('Error updating description in JSON:', error);
+      }
+    });
+    
+    editorContentEl.addEventListener('input', function() {
+      try {
+        const updatedData = JSON.parse(this.value);
+        currentTableData = updatedData;
+        editorNameEl.value = updatedData.name || '';
+        editorDescriptionEl.value = updatedData.desc || '';
+        editorErrorEl.classList.add('hidden');
+      } catch (error) {
+        editorErrorEl.textContent = 'Invalid JSON format';
+        editorErrorEl.classList.remove('hidden');
+      }
+    });
+    
+    async function saveTable(id) {
+      try {
+        const tableData = editorContentEl.value;
+        JSON.parse(tableData);
+        
+        setStatus('Saving table data...');
+        const response = await fetch(`es/systems/vpinball/games/${id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: tableData
+        });
+        
+        if (!response.ok) throw new Error('Failed to save table data');
+        
+        closeEditor();
+        fetchTables();
+        setStatus('Table data saved');
+      } catch (error) {
+        console.error('Error saving table:', error);
+        editorErrorEl.textContent = 'Invalid JSON format';
+        editorErrorEl.classList.remove('hidden');
+      }
+    }
+    
+    function closeEditor() {
+      mainContainer.style.display = 'block';
+      editorContainer.style.display = 'none';
+      currentTableData = null;
+      refreshTableList();
+    }
+    
+    function sortTables() {
+      tables.sort((a, b) => {
+        if (sortField === 'name') {
+          const nameA = a.name.toLowerCase().startsWith('the ') ? a.name.substring(4).toLowerCase() : a.name.toLowerCase();
+          const nameB = b.name.toLowerCase().startsWith('the ') ? b.name.substring(4).toLowerCase() : b.name.toLowerCase();
+          
+          return sortDirection === 'asc' 
+            ? nameA.localeCompare(nameB) 
+            : nameB.localeCompare(nameA);
+        }
+        return 0;
+      });
+      
+      refreshTableList();
+    }
+    
+    function toggleSort(field) {
+      if (field === sortField) {
+        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+      } else {
+        sortField = field;
+        sortDirection = 'asc';
+      }
+      
+      sortTables();
+      
+      const sortIcon = document.querySelector('#sort-name .sort-icon');
+      if (sortDirection === 'asc') {
+        sortIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"></path></svg>';
+      } else {
+        sortIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>';
+      }
+    }
+    
+    function refreshTableList() {
+      const filteredTables = tables.filter(table => 
+        table.name.toLowerCase().includes(searchTerm)
+      );
+      
+      if (!filteredTables.length) {
+        tableListEl.innerHTML = `
+          <tr>
+            <td colspan="2" style="text-align: center; padding: 40px 20px;">
+              ${tables.length ? 'No tables match your search' : 'No tables found'}
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      let html = '';
+      
+      filteredTables.forEach(table => {
+        html += `
+<tr data-id="${table.id}" class="${currentTable && currentTable.id === table.id ? 'running-table' : ''}" onclick="editTable('${table.id}')">
+<td>${table.name}</td>
+<td onclick="event.stopPropagation()">
+  <div class="table-actions">
+    <button class="action-button primary" title="Launch Table" onclick="startVpx('${table.id}')">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+      </svg>
+    </button>
+    <button class="action-button secondary" title="Edit Table" onclick="editTable('${table.id}')">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+      </svg>
+    </button>
+    <div class="dropdown">
+      <button class="action-button" title="Media Actions" onclick="toggleDropdown(event, '${table.id}')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="1"></circle>
+          <circle cx="12" cy="5" r="1"></circle>
+          <circle cx="12" cy="19" r="1"></circle>
+        </svg>
+      </button>
+      <div id="dropdown-${table.id}" class="dropdown-content">
+        <div class="dropdown-header">Media Actions</div>
+        <div class="dropdown-item">
+          <span class="dropdown-item-label">Wheel</span>
+          <div class="dropdown-actions">
+            <button class="action-button" title="Download Wheel" onclick="downloadMedia('marquee', '${table.id}')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+            </button>
+            <button class="action-button" title="Upload Wheel" onclick="uploadMedia('marquee', '${table.id}')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="dropdown-item">
+          <span class="dropdown-item-label">Backglass</span>
+          <div class="dropdown-actions">
+            <button class="action-button" title="Download Backglass" onclick="downloadMedia('boxart', '${table.id}')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+            </button>
+            <button class="action-button" title="Upload Backglass" onclick="uploadMedia('boxart', '${table.id}')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="dropdown-item">
+          <span class="dropdown-item-label">Image</span>
+          <div class="dropdown-actions">
+            <button class="action-button" title="Download Image" onclick="downloadMedia('image', '${table.id}')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+            </button>
+            <button class="action-button" title="Upload Image" onclick="uploadMedia('image', '${table.id}')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="dropdown-item">
+          <span class="dropdown-item-label">Video</span>
+          <div class="dropdown-actions">
+            <button class="action-button" title="Download Video" onclick="downloadMedia('video', '${table.id}')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+            </button>
+            <button class="action-button" title="Upload Video" onclick="uploadMedia('video', '${table.id}')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</td>
+</tr>
+`;
+      });
+      
+      tableListEl.innerHTML = html;
+    }
+    
+    function initialize() {
+      fetchTables();
+      setInterval(fetchRunning, 3000);
+      
+      document.getElementById('reload-games').addEventListener('click', reloadGames);
+      document.getElementById('capture-backglass').addEventListener('click', () => capture('boxart'));
+      document.getElementById('capture-image').addEventListener('click', () => capture('image'));
+      document.getElementById('capture-video').addEventListener('click', () => capture('video'));
+      document.getElementById('stop-vpx').addEventListener('click', stopVpx);
+      
+      document.getElementById('refresh-preview').addEventListener('click', loadLivePreviews);
+      
+      document.getElementById('sort-name').addEventListener('click', () => toggleSort('name'));
+      document.getElementById('cancel-button').addEventListener('click', closeEditor);
+
+      document.getElementById('refresh-preview').addEventListener('click', () => {
+        console.log('Refresh button clicked, loading previews...');
+        loadLivePreviews();
+      });
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          console.log(`Switched to tab: ${tab.getAttribute('data-tab')}`);
+        });
+      });
+
+      document.getElementById('suggest-description').addEventListener('click', suggestDescription);
+      document.getElementById('search-input').addEventListener('input', function() {
+        searchTerm = this.value.toLowerCase();
+        refreshTableList();
+      });
+    }
+
+    function toggleDropdown(event, tableId) {
+      event.stopPropagation();
+      
+      document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+        if (dropdown.id !== `dropdown-${tableId}`) {
+          dropdown.classList.remove('show');
+        }
+      });
+      
+      const dropdown = document.getElementById(`dropdown-${tableId}`);
+      dropdown.classList.toggle('show');
+    }
+
+    document.addEventListener('click', function(event) {
+      if (!event.target.closest('.dropdown')) {
+        document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+          dropdown.classList.remove('show');
+        });
+      }
+    });
+
+    async function suggestDescription() {
+      const nameEl = document.getElementById('editor-name');
+      const descriptionEl = document.getElementById('editor-description');
+      const suggestBtn = document.getElementById('suggest-description');
+      
+      const tableName = nameEl.value.trim();
+      
+      if (!tableName) {
+        alert('Please enter a table name first');
+        return;
+      }
+      
+      const originalBtnContent = suggestBtn.innerHTML;
+      suggestBtn.innerHTML = '<span class="loading-spinner"></span> Generating...';
+      suggestBtn.disabled = true;
+      
+      try {
+        const description = await generateDescription(tableName);
+        
+        descriptionEl.value = description;
+        
+        if (currentTableData) {
+          currentTableData.desc = description;
+          editorContentEl.value = JSON.stringify(currentTableData, null, 2);
+        }
+        
+      } catch (error) {
+        console.error('Error generating description:', error);
+        alert('Failed to generate description. Please try again.');
+      } finally {
+        suggestBtn.innerHTML = originalBtnContent;
+        suggestBtn.disabled = false;
+      }
+    }
+
+    async function generateDescription(tableName) {
+  try {
+    const response = await fetch(`/generate-description?name=${encodeURIComponent(tableName)}`);
+    
+    if (response.status === 404) {
+      throw new Error('OpenAI API key is not configured. Please set up your API key.');
+    } else if (response.status === 400) {
+      throw new Error('Table name is required.');
+    } else if (response.status === 500) {
+      throw new Error('Server error while generating description. Please try again later.');
+    } else if (!response.ok) {
+      throw new Error(`Unexpected error (${response.status}). Please try again.`);
+    }
+    
+    const data = await response.json();
+    
+    if (data.description !== undefined) {
+      return data.description;
+    } else {
+      throw new Error('Invalid response format from the description service.');
+    }
+  } catch (error) {
+    console.error('Error generating description:', error);
+    throw error;
+  }
+}
+    
+    initialize();
+  </script>
+</body>
+</html>

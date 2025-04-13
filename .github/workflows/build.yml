@@ -1,0 +1,30 @@
+name: build
+on:
+  push:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build-gl-linux:
+    name: Build vpxbct-linux-x64
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          sudo apt-get update
+          sudo apt-get install libimagequant-dev
+      - uses: actions/checkout@v4
+      - name: Build
+        run: |
+          cmake -DCMAKE_BUILD_TYPE=Release -B build
+          cmake --build build
+      - run: |
+          mkdir tmp
+          cp build/vpxbct tmp
+          cp vpxbct.ini tmp
+          cp -r assets tmp
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vpxbct-linux-x64
+          path: tmp
