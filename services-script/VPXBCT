@@ -1,0 +1,13 @@
+#!/bin/bash
+# VPXBCT — launch VPX Batocera Capture Tool
+
+case "$1" in
+    start)
+        echo "[$(date)] Starting VPXBCT…" >> /tmp/VPXBCT.log
+        /userdata/system/configs/vpinball/vpxbct-linux-x64/vpxbct &>> /tmp/VPXBCT.log &
+        ;;
+    stop)
+        echo "[$(date)] Stopping VPXBCT…" >> /tmp/VPXBCT.log
+        pkill -f "/userdata/system/configs/vpinball/vpxbct-linux-x64/vpxbct"
+        ;;
+esac
