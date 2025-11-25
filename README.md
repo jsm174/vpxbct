@@ -49,7 +49,8 @@ OpenAIKey=sk-XXXXXXXXXXXXXXXXXXXXXX
 
 1. Inside the downloaded project, locate the `services-script` folder.  
 2. Copy the `VPXBCT` script from that folder to:  
-   `/userdata/system/services/` on your Batocera system.  
+   `/userdata/system/services/` on your Batocera system. 
+   *(If the folder does not exist, create it.)*  
 3. Open a terminal (either via SSH or Batocera’s local terminal) and run:  
    ```bash
    chmod +x /userdata/system/services/VPXBCT
